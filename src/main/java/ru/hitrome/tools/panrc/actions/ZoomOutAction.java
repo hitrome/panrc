@@ -39,6 +39,8 @@ import ru.hitrome.tools.panrc.camqueue.QueueSimpleElement;
  */
 public class ZoomOutAction extends AbstractActionWithCallback {
     
+    public static final Logger LOGGER = Logger.getLogger(ZoomOutAction.class.getName());
+    
     private final ApplicationContext applicationContext;
     
     public ZoomOutAction(ApplicationContext applicationContext) {
@@ -50,9 +52,11 @@ public class ZoomOutAction extends AbstractActionWithCallback {
             actionImage = new ImageIcon(ImageIO.read(getClass()
                     .getResourceAsStream(Constants.IMG_CAM_ZOOM_OUT))
                     .getScaledInstance(-1, Constants.RECMODEFORM_VIEWERCONTROLPANEL_BTNIMG_HEIGHT, Image.SCALE_SMOOTH));
+            
         } catch (IOException ex) {
-            Logger.getLogger(ZoomOutAction.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
         }
+        
         if (actionImage != null) {
             this.putValue(Action.SMALL_ICON, actionImage);
         }
@@ -61,13 +65,17 @@ public class ZoomOutAction extends AbstractActionWithCallback {
     @Override
     public void action(ActionEvent e) {
         if (e.getSource() instanceof JButton) {
+            
             if (((JButton)e.getSource()).getModel().isPressed()) {
                 sendZoomOutCommand();
+                
             } else {
+                
                 if (applicationContext.isZoomAutoStop()) {
                     sendStopZoomCommand();
                 }
             }
+            
         } else {
             sendZoomOutCommand();
         }
@@ -75,9 +83,11 @@ public class ZoomOutAction extends AbstractActionWithCallback {
     
     private void sendZoomOutCommand() {
         RemoteControlCommands rcc = new RemoteControlCommands(applicationContext.getCameraIpAddress());
+        
         if (applicationContext.getCamQueue() != null) {
             this.delayedResult = true;
             applicationContext.getCamQueue().put(new QueueSimpleElement(() -> rcc.zoomOut(), null));
+            
         } else {
             this.actionResult = rcc.zoomOut();
         }
@@ -85,9 +95,11 @@ public class ZoomOutAction extends AbstractActionWithCallback {
     
     private void sendStopZoomCommand() {
         RemoteControlCommands rcc = new RemoteControlCommands(applicationContext.getCameraIpAddress());
+        
         if (applicationContext.getCamQueue() != null) {
             this.delayedResult = true;
             applicationContext.getCamQueue().put(new QueueSimpleElement(() -> rcc.stopZoom(), null));
+            
         } else {
             this.actionResult = rcc.stopZoom();
         }

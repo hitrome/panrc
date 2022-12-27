@@ -24,7 +24,6 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import ru.hitrome.tools.panrc.ApplicationContext;
 import ru.hitrome.tools.panrc.RemoteControlCommands;
-import ru.hitrome.tools.panrc.forms.RecModeForm;
 
 /**
  *
@@ -32,28 +31,37 @@ import ru.hitrome.tools.panrc.forms.RecModeForm;
  */
 public class Viewer implements Runnable {
     
+    private static final Logger LOGGER = Logger.getLogger(Viewer.class.getName());
+    
     private final ApplicationContext applicationContext;
     private ViewerSurface surface;
     private ImageReceiver receiver;
     private Thread viewerThread;
-    private boolean interrupt = false;
+    private volatile boolean interrupt = false;
     private Runnable viewerStartCallback;
     
     public Viewer(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
+        
         if (applicationContext.getViewerBackground() == null) {
             BufferedImage background = null;
+            
             try {
-                background = ImageIO.read(getClass().getResourceAsStream(ru.hitrome.tools.panrc.Constants.VIEWER_BACKGROUND));
+                background = ImageIO.read(
+                        getClass().getResourceAsStream(ru.hitrome.tools.panrc.Constants.VIEWER_BACKGROUND));
+                
             } catch (IOException ex) {
-                Logger.getLogger(RecModeForm.class.getName()).log(Level.SEVERE, null, ex); 
+                LOGGER.log(Level.SEVERE, null, ex); 
             }
+            
             if (background != null) {
                 surface = new ViewerSurface(background);
-            }   
+            }  
+            
         } else {
             surface = new ViewerSurface(applicationContext.getViewerBackground());
         }
+        
         if (surface != null) {
             receiver = new ImageReceiver(applicationContext.getViewerUdpPort(),
                     (new RemoteControlCommands(applicationContext.getCameraIpAddress()))::getState);
@@ -63,14 +71,17 @@ public class Viewer implements Runnable {
     
     public boolean startViewer() {
         boolean result = false;
+        
         if (surface != null) {
             RemoteControlCommands rcc = new RemoteControlCommands(applicationContext.getCameraIpAddress());
             result = rcc.startStream(applicationContext.getViewerUdpPort());
+            
             if (result) {
                 receiver.startReceiver();
                 interrupt = false;
                 viewerThread = new Thread(this);
                 viewerThread.start();
+                
                 if (viewerStartCallback != null) {
                     viewerStartCallback.run();
                 }
@@ -106,10 +117,12 @@ public class Viewer implements Runnable {
     public void run() {
         while (!interrupt) {
             surface.displayFrame(receiver.getReceivedImage());
+            
             try {
                 Thread.sleep(40);
+                
             } catch (InterruptedException ex) {
-                Logger.getLogger(Viewer.class.getName()).log(Level.SEVERE, null, ex);
+                LOGGER.log(Level.SEVERE, null, ex);
                 interrupt = true;
             }
             

@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Map;
@@ -36,6 +35,7 @@ public class HttpUtil {
     private int status;
     
     public int getHttpStatus() {
+        
         return status;
     }
     
@@ -51,6 +51,7 @@ public class HttpUtil {
         }
  
         String resultString = result.toString();
+        
         return resultString.length() > 0
           ? resultString.substring(0, resultString.length() - 1)
           : resultString;
@@ -67,15 +68,18 @@ public class HttpUtil {
         con.setAllowUserInteraction(false);
         con.connect();
         StringBuilder content;
+        
         try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
             String inputLine;
             content = new StringBuilder();
+            
             while ((inputLine = in.readLine()) != null) {
                 content.append(inputLine);
             }
         }
         status = con.getResponseCode();
         con.disconnect();
+        
         return content.toString();
     }
     

@@ -38,6 +38,7 @@ public class QueueSimpleElement implements QueueElement {
     public void run() {
         if (supplier != null) {
             Boolean result = supplier.get();
+            
             if (consumer != null) {
                 consumer.accept(result);
             }

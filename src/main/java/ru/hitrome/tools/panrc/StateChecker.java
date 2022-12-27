@@ -31,7 +31,7 @@ public class StateChecker implements Runnable {
     private int timeInterval = 1000;
     
     private Thread checkerThread;
-    private boolean interrupt = false;
+    private volatile boolean interrupt = false;
     
     public StateChecker(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -56,6 +56,7 @@ public class StateChecker implements Runnable {
     public void checkState() {
         if (applicationContext.getCamQueue() != null && !applicationContext.getCamQueue().isInterrupt()) {
             applicationContext.getCamQueue().put(() -> checkStateEx(applicationContext.getCameraIpAddress()));
+            
         } else {
             checkStateEx(applicationContext.getCameraIpAddress());
         }
@@ -64,6 +65,7 @@ public class StateChecker implements Runnable {
     public void checkStateEx(String camAddr) {
         RemoteControlCommands rcc = new RemoteControlCommands(camAddr);
         state = rcc.getStateEx();
+        
         if (onCheckState != null) {
             onCheckState.run();
         }
@@ -86,8 +88,10 @@ public class StateChecker implements Runnable {
             synchronized (this) {
                 checkState();
             }
+            
             try {
                 Thread.sleep(timeInterval);
+                
             } catch (InterruptedException ex) {
                 // Do nothing
             }

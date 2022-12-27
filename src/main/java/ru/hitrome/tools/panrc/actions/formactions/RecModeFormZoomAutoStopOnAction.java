@@ -36,6 +36,8 @@ import ru.hitrome.tools.panrc.forms.RecModeForm;
  */
 public class RecModeFormZoomAutoStopOnAction extends RecModeFormAbstractAction {
     
+    private static final Logger LOGGER = Logger.getLogger(RecModeFormZoomAutoStopOnAction.class.getName());
+    
     private final RecModeForm form;
     
     @SuppressWarnings("OverridableMethodCallInConstructor")
@@ -43,12 +45,16 @@ public class RecModeFormZoomAutoStopOnAction extends RecModeFormAbstractAction {
         super(LanguageUtil.get(ActionConstants.RECMODEFORM_ZOOM_AUTO_STOP_ON));
         this.putValue(Action.SHORT_DESCRIPTION, LanguageUtil.get(ActionConstants.RECMODEFORM_ZOOM_AUTO_STOP_ON));
         ImageIcon actionImage = null;
+        
         try {
             actionImage = new ImageIcon(ImageIO.read(getClass()
-                    .getResourceAsStream(ru.hitrome.tools.panrc.Constants.IMG_CAM_ZOOMAUTOSTOP_ON)).getScaledInstance(-1, Constants.RECMODEFORM_VIEWERCONTROLPANEL_BTNIMG_HEIGHT, Image.SCALE_SMOOTH));
+                    .getResourceAsStream(ru.hitrome.tools.panrc.Constants.IMG_CAM_ZOOMAUTOSTOP_ON))
+                    .getScaledInstance(-1, Constants.RECMODEFORM_VIEWERCONTROLPANEL_BTNIMG_HEIGHT, Image.SCALE_SMOOTH));
+            
         } catch (IOException ex) {
-            Logger.getLogger(RecModeFormPlayStreamAction.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
         }
+        
         if (actionImage != null) {
             this.putValue(Action.SMALL_ICON, actionImage);
         }
@@ -59,6 +65,7 @@ public class RecModeFormZoomAutoStopOnAction extends RecModeFormAbstractAction {
     public void actionPerformed(ActionEvent e) {
         if (this.enabled) {
             form.getApplicationContext().setZoomAutoStop(true);
+            
             if (onExecutedAl != null) {
                 onExecutedAl.run();
             }

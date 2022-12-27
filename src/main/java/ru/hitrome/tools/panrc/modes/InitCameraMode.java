@@ -17,6 +17,7 @@
  */
 package ru.hitrome.tools.panrc.modes;
 
+import java.util.logging.Logger;
 import ru.hitrome.tools.panrc.ActionsUtil;
 import ru.hitrome.tools.panrc.ApplicationContext;
 import ru.hitrome.tools.panrc.ControlConstants;
@@ -29,6 +30,8 @@ import ru.hitrome.tools.panrc.forms.InitCameraForm;
  * @author Roman Novikov <rrl-software@mail.ru>
  */
 public class InitCameraMode implements AbstractApplicationMode, Runnable {
+    
+    private static final Logger LOGGER = Logger.getLogger(InitCameraMode.class.getName());
     
     private InitCameraForm form;
     private ApplicationContext applicationContext;
@@ -62,15 +65,23 @@ public class InitCameraMode implements AbstractApplicationMode, Runnable {
             applicationContext.setStateChecker(new StateChecker(applicationContext));
             applicationContext.getStateChecker().checkState();
             if (applicationContext.getStateChecker().getState() != null) {
-                if (!applicationContext.getStateChecker().getState().getCammode().equals(ControlConstants.STATE_MODE_PLAYAVCHD)) {
+                
+                if (!applicationContext.getStateChecker().getState().getCammode()
+                        .equals(ControlConstants.STATE_MODE_PLAYAVCHD)) {
+                    LOGGER.info("Switching to PlayMode...");
                     result = rcc.switchToPlayMode();
+                    
                 } else {
+                    LOGGER.info("PlayMode is already set.");
                     result = true;
                 }
                 applicationContext.setCameraInitialized(true);
+                
             } else {
+                LOGGER.info("StateChecker has returned null.");
                 result = false;
             }
+            
         } else {
             applicationContext.setCameraInitialized(result);
         }

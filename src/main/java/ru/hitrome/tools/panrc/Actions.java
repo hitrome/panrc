@@ -28,10 +28,10 @@ import javax.swing.AbstractAction;
  */
 public class Actions {
     
-    private Map<String, AbstractAction> actions;
+    private final Map<String, AbstractAction> actions;
     
     public Actions() {
-        actions = new HashMap<String, AbstractAction>();
+        actions = new HashMap<>();
     }
     
     public AbstractAction getAction(String name) {

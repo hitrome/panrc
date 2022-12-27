@@ -27,6 +27,8 @@ import java.util.logging.Logger;
  */
 public class CamQueue implements Runnable {
     
+    private static final Logger LOGGER = Logger.getLogger(CamQueue.class.getName());
+    
     private final LinkedBlockingQueue<QueueElement> queue;
     private boolean interrupt = true;
     private int delay = 10;
@@ -58,6 +60,7 @@ public class CamQueue implements Runnable {
     
     public void start() {
         if (thread != null) {
+            
             if (!thread.isInterrupted()) {
                 thread.interrupt();
             }
@@ -72,27 +75,31 @@ public class CamQueue implements Runnable {
     public void run() {
         while (!interrupt || !Thread.interrupted()) {
             QueueElement task = null;
+            
             try {
                 task = queue.take();
+                
             } catch (InterruptedException ex) {
                 LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
             }
+            
             if (task != null) {
+                
                 try {
                     task.run();
                 } catch (Exception e) {
                     LOGGER.log(Level.WARNING, e.getMessage(), e);
                 }
             }
+            
             try {
                 Thread.sleep(delay);
+                
             } catch (InterruptedException ex) {
                 LOGGER.log(Level.WARNING, "Camera control queue delay interrupted", ex);
             }
         }
         queue.clear();
     }
-    
-    private static final Logger LOGGER = Logger.getLogger(CamQueue.class.getName());
     
 }

@@ -80,16 +80,19 @@ public class RecModeIndicator extends JPanel {
         this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         this.add(Box.createHorizontalGlue());
         this.add(previewIndicator);
-        this.add(new Box.Filler(new Dimension(Constants.RECMODEINDICATOR_SPACER_WIDTH, Constants.RECMODEINDICATOR_HEIGHT),
+        this.add(new Box.Filler(new Dimension(Constants.RECMODEINDICATOR_SPACER_WIDTH,
+                Constants.RECMODEINDICATOR_HEIGHT),
                 new Dimension(Constants.RECMODEINDICATOR_SPACER_WIDTH, Constants.RECMODEINDICATOR_HEIGHT),
                 new Dimension(Constants.RECMODEINDICATOR_SPACER_WIDTH, Constants.RECMODEINDICATOR_HEIGHT)));
         this.add(camIndicator);
-        this.add(new Box.Filler(new Dimension(Constants.RECMODEINDICATOR_SPACER_WIDTH, Constants.RECMODEINDICATOR_HEIGHT),
+        this.add(new Box.Filler(new Dimension(Constants.RECMODEINDICATOR_SPACER_WIDTH,
+                Constants.RECMODEINDICATOR_HEIGHT),
                 new Dimension(Constants.RECMODEINDICATOR_SPACER_WIDTH, Constants.RECMODEINDICATOR_HEIGHT),
                 new Dimension(Constants.RECMODEINDICATOR_SPACER_WIDTH, Constants.RECMODEINDICATOR_HEIGHT)));
         this.add(batteryIndicator);
         Dimension indicatorSize = new Dimension(Constants.RECMODEINDICATOR_SPACER_WIDTH * 4
-                + previewIndicatorOff.getIconWidth() + camIndicatorOff.getIconWidth()+ batteryIndicatorBad.getIconWidth(),
+                + previewIndicatorOff.getIconWidth() + camIndicatorOff.getIconWidth()
+                + batteryIndicatorBad.getIconWidth(),
                 Constants.RECMODEINDICATOR_HEIGHT + 8);
         this.add(Box.createHorizontalGlue());
         this.setPreferredSize(indicatorSize);
@@ -101,6 +104,7 @@ public class RecModeIndicator extends JPanel {
     public void setPreviewIndicator(boolean state) {
         if (state) {
             previewIndicator.setIcon(previewIndicatorOn);
+            
         } else {
             previewIndicator.setIcon(previewIndicatorOff);
         }

@@ -49,9 +49,11 @@ public class StartRecordAction extends AbstractActionWithCallback {
             actionImage = new ImageIcon(ImageIO.read(getClass()
                     .getResourceAsStream(Constants.IMG_CAM_START_RECORD))
                     .getScaledInstance(-1, Constants.RECMODEFORM_VIEWERCONTROLPANEL_BTNIMG_HEIGHT, Image.SCALE_SMOOTH));
+            
         } catch (IOException ex) {
             Logger.getLogger(StartRecordAction.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
         if (actionImage != null) {
             this.putValue(Action.SMALL_ICON, actionImage);
         }
@@ -60,9 +62,12 @@ public class StartRecordAction extends AbstractActionWithCallback {
     @Override
     public void action(ActionEvent e) {
         RemoteControlCommands rcc = new RemoteControlCommands(applicationContext.getCameraIpAddress());
+        
         if (applicationContext.getCamQueue() != null) {
             this.delayedResult = true;
-            applicationContext.getCamQueue().put(new QueueSimpleElement(() -> rcc.startRecord(), (b) -> this.onExecuted.accept(b)));
+            applicationContext.getCamQueue().put(new QueueSimpleElement(() -> rcc.startRecord(),
+                    (b) -> this.onExecuted.accept(b)));
+            
         } else {
             this.actionResult = rcc.startRecord();
         }

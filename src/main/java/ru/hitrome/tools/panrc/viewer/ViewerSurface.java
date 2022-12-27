@@ -44,13 +44,16 @@ public class ViewerSurface extends JPanel {
     
     private void doDrawing(Graphics2D g) {
         BufferedImage tmpImage;
+        
         if (bufferedImage != null) {
             tmpImage = bufferedImage;
+            
         } else {
             tmpImage = defaultImage;
         }
         double sF = (double) getWidth() / tmpImage.getWidth();
         double dH = tmpImage.getHeight() * sF;
+        
         if (dH > getHeight()) {
             sF = (double) getHeight() / tmpImage.getHeight();
         }

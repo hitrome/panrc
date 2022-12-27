@@ -41,6 +41,7 @@ import ru.hitrome.tools.panrc.camqueue.CamQueue;
  */
 public class PanRc {
     
+    private static final Logger LOGGER = Logger.getLogger(PanRc.class.getName());
     
     /**
      * @param args the command line arguments
@@ -52,8 +53,11 @@ public class PanRc {
         List<String> keyArgs = new ArrayList<>();
         String parserMode = null;
         int argumentCount = 0;
+        
         for (String arg:args) {
+            
             if (argumentCount == 0) {
+                
                 switch (arg) {
                     case CmdLineKeys.LOGGING_LEVEL  :
                         parserMode = CmdLineKeys.LOGGING_LEVEL;
@@ -72,11 +76,14 @@ public class PanRc {
                         argumentCount = 0;
                         break;
                 }
+                
             } else {
                 keyArgs.add(arg);
                 argumentCount--;
             }
+            
             if (parserMode != null && argumentCount == 0) {
+                
                 switch (parserMode) {
                     case CmdLineKeys.LOGGING_LEVEL  :
                         setLoggerLevel(keyArgs.get(0), parserMode);
@@ -113,21 +120,22 @@ public class PanRc {
     public static void setLoggerLevel(Level targetLevel) {
         Logger root = Logger.getLogger("");
         root.setLevel(targetLevel);
+        
         for (Handler handler : root.getHandlers()) {
             handler.setLevel(targetLevel);
         }
     }
     
     private static void setLoggerLevel(String targetLevel, String mode) {
+        
         try {
             Level level = Level.parse(targetLevel);
             setLoggerLevel(level);
             LOGGER.log(level, "{0} {1}", new Object[]{LanguageUtil.get("message.loggersettolevel"), level.getName()});
+            
         } catch (IllegalArgumentException e) {
             System.out.println(LanguageUtil.get("error.wrongargument") + " " + mode);
         }
     }
-    
-    private static final Logger LOGGER = Logger.getLogger(PanRc.class.getName());
     
 }

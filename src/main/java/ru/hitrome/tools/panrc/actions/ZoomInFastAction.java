@@ -39,6 +39,8 @@ import ru.hitrome.tools.panrc.camqueue.QueueSimpleElement;
  */
 public class ZoomInFastAction extends AbstractActionWithCallback {
     
+    private static final Logger LOGGER = Logger.getLogger(ZoomInFastAction.class.getName());
+    
     private final ApplicationContext applicationContext;
     
     public ZoomInFastAction(ApplicationContext applicationContext) {
@@ -50,9 +52,11 @@ public class ZoomInFastAction extends AbstractActionWithCallback {
             actionImage = new ImageIcon(ImageIO.read(getClass()
                     .getResourceAsStream(Constants.IMG_CAM_ZOOM_IN_FAST))
                     .getScaledInstance(-1, Constants.RECMODEFORM_VIEWERCONTROLPANEL_BTNIMG_HEIGHT, Image.SCALE_SMOOTH));
+            
         } catch (IOException ex) {
-            Logger.getLogger(ZoomInFastAction.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
         }
+        
         if (actionImage != null) {
             this.putValue(Action.SMALL_ICON, actionImage);
         }
@@ -61,13 +65,17 @@ public class ZoomInFastAction extends AbstractActionWithCallback {
     @Override
     public void action(ActionEvent e) {
         if (e.getSource() instanceof JButton) {
+            
             if (((JButton)e.getSource()).getModel().isPressed()) {
                 sendZoomInFastCommand();
+                
             } else {
+                
                 if (applicationContext.isZoomAutoStop()) {
                     sendStopZoomCommand();
                 }
             }
+            
         } else {
             sendZoomInFastCommand();
         }
@@ -75,9 +83,11 @@ public class ZoomInFastAction extends AbstractActionWithCallback {
     
     private void sendZoomInFastCommand() {
         RemoteControlCommands rcc = new RemoteControlCommands(applicationContext.getCameraIpAddress());
+        
         if (applicationContext.getCamQueue() != null) {
             this.delayedResult = true;
             applicationContext.getCamQueue().put(new QueueSimpleElement(() -> rcc.zoomInFast(), null));
+            
         } else {
             this.actionResult = rcc.zoomInFast();
         }
@@ -85,9 +95,11 @@ public class ZoomInFastAction extends AbstractActionWithCallback {
     
     private void sendStopZoomCommand() {
         RemoteControlCommands rcc = new RemoteControlCommands(applicationContext.getCameraIpAddress());
+        
         if (applicationContext.getCamQueue() != null) {
             this.delayedResult = true;
             applicationContext.getCamQueue().put(new QueueSimpleElement(() -> rcc.stopZoom(), null));
+            
         } else {
             this.actionResult = rcc.stopZoom();
         }

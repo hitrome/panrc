@@ -50,8 +50,7 @@ public class InitCameraForm {
         panel.add(Box.createVerticalGlue());
         container.add(panel, BorderLayout.CENTER);
         this.applicationContext.getMainGui().getFrame().pack();
-        
-        
+ 
     }
 
     public JPanel getPanel() {

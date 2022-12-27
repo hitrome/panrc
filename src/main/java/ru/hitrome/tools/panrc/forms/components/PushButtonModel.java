@@ -38,6 +38,7 @@ public class PushButtonModel extends DefaultButtonModel {
             
             if (b) {
                 stateMask |= PRESSED;
+                
             } else {
                 stateMask &= ~PRESSED;
             }
@@ -45,8 +46,10 @@ public class PushButtonModel extends DefaultButtonModel {
             if (isArmed()) {
                 int modifiers = 0;
                 AWTEvent currentEvent = EventQueue.getCurrentEvent();
+                
                 if (currentEvent instanceof InputEvent) {
                     modifiers = ((InputEvent) currentEvent).getModifiers();
+                    
                 } else if (currentEvent instanceof ActionEvent) {
                     modifiers = ((ActionEvent) currentEvent).getModifiers();
                 }

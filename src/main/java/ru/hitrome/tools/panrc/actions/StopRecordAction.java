@@ -44,13 +44,16 @@ public class StopRecordAction extends AbstractActionWithCallback {
         super(LanguageUtil.get(ActionConstants.STOP_RECORD_ACTION));
         this.applicationContext = applicationContext;
         ImageIcon actionImage = null;
+        
         try {
             actionImage = new ImageIcon(ImageIO.read(getClass()
                     .getResourceAsStream(Constants.IMG_CAM_STOP_RECORD))
                     .getScaledInstance(-1, Constants.RECMODEFORM_VIEWERCONTROLPANEL_BTNIMG_HEIGHT, Image.SCALE_SMOOTH));
+            
         } catch (IOException ex) {
             Logger.getLogger(StopRecordAction.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
         if (actionImage != null) {
             this.putValue(Action.SMALL_ICON, actionImage);
         }
@@ -59,9 +62,12 @@ public class StopRecordAction extends AbstractActionWithCallback {
     @Override
     public void action(ActionEvent e) {
         RemoteControlCommands rcc = new RemoteControlCommands(applicationContext.getCameraIpAddress());
+        
         if (applicationContext.getCamQueue() != null) {
             this.delayedResult = true;
-            applicationContext.getCamQueue().put(new QueueSimpleElement(() -> rcc.stopRecord(), (b) -> this.onExecuted.accept(b)));
+            applicationContext.getCamQueue().put(new QueueSimpleElement(() -> rcc.stopRecord(),
+                    (b) -> this.onExecuted.accept(b)));
+            
         } else {
             this.actionResult = rcc.stopRecord();
         }

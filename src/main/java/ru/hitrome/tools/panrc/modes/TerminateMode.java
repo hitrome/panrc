@@ -37,6 +37,7 @@ public class TerminateMode implements AbstractApplicationMode {
 
     @Override
     public boolean getResult() {
+        
         return true;
     }
     

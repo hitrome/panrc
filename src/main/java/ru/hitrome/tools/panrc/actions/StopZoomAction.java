@@ -39,6 +39,8 @@ import ru.hitrome.tools.panrc.camqueue.QueueSimpleElement;
  */
 public class StopZoomAction extends AbstractActionWithCallback {
     
+    private static final Logger LOGGER = Logger.getLogger(StopZoomAction.class.getName());
+    
     private final ApplicationContext applicationContext;
     
     public StopZoomAction(ApplicationContext applicationContext) {
@@ -50,9 +52,11 @@ public class StopZoomAction extends AbstractActionWithCallback {
             actionImage = new ImageIcon(ImageIO.read(getClass()
                     .getResourceAsStream(Constants.IMG_CAM_STOP_ZOOM))
                     .getScaledInstance(-1, Constants.RECMODEFORM_VIEWERCONTROLPANEL_BTNIMG_HEIGHT, Image.SCALE_SMOOTH));
+            
         } catch (IOException ex) {
-            Logger.getLogger(StopZoomAction.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
         }
+        
         if (actionImage != null) {
             this.putValue(Action.SMALL_ICON, actionImage);
         }
@@ -61,9 +65,11 @@ public class StopZoomAction extends AbstractActionWithCallback {
     @Override
     public void action(ActionEvent e) {
         if (e.getSource() instanceof JButton) {
+            
             if (((JButton)e.getSource()).getModel().isPressed()) {
                 sendStopZoomCommand();
             }
+            
         } else {
             sendStopZoomCommand();
         }
@@ -71,9 +77,11 @@ public class StopZoomAction extends AbstractActionWithCallback {
     
     private void sendStopZoomCommand() {
         RemoteControlCommands rcc = new RemoteControlCommands(applicationContext.getCameraIpAddress());
+        
         if (applicationContext.getCamQueue() != null) {
             this.delayedResult = true;
             applicationContext.getCamQueue().put(new QueueSimpleElement(() -> rcc.stopZoom(), null));
+            
         } else {
             this.actionResult = rcc.stopZoom();
         }

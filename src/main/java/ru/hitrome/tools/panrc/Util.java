@@ -27,11 +27,14 @@ public class Util {
     
     public static void checkWithTimeout(Supplier<Boolean> terminated, Supplier<Boolean> checker, int timeOut) {
         for (int time = 0; time < timeOut; time++) {
+            
             if (terminated.get() || checker.get()) {
                 break;
             }
+            
             try {
                 Thread.sleep(1);
+                
             } catch (InterruptedException ex) {
                 break;
             }
@@ -40,12 +43,15 @@ public class Util {
     
     public static int getBatteryPercentage(String batteryState) {
         int result = 0;
+        
         if (batteryState != null) {
             String[] tmpArr = batteryState.split("/");
+            
             if (tmpArr.length == 2) {
                 result = (int)((((float)(Integer.parseInt(tmpArr[0]))) / Integer.parseInt(tmpArr[1])) * 100);
             }
         }
+        
         return result;
     }
     

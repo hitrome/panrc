@@ -125,10 +125,12 @@ public class RecModeForm {
         formActions.putAction(ActionConstants.RECMODEFORM_STOPPLAYSTREAM, recModeFormStopPlayStreamAction);
         
         recModeFormPlayStreamAction.setOnExcecuted(res -> {
+            
             if (res) {
                 previewOnOfBtn.setAction(recModeFormStopPlayStreamAction);
             }
         });
+        
         recModeFormStopPlayStreamAction.setOnExcecuted(() -> {
             previewOnOfBtn.setAction(recModeFormPlayStreamAction);
         });
@@ -136,14 +138,18 @@ public class RecModeForm {
         Action startRecordAction = applicationContext.getMainActions().getAction(ActionConstants.START_RECORD_ACTION);
         Action stopRecordAction = applicationContext.getMainActions().getAction(ActionConstants.STOP_RECORD_ACTION);
         recordButton.setAction(startRecordAction);
+        
         ((AbstractActionWithCallback)startRecordAction)
                 .setOnExecuted((b) -> {
+                    
                     if (b) {
                         recordButton.setAction(stopRecordAction);
                     }
                 });
+        
         ((AbstractActionWithCallback)stopRecordAction)
                 .setOnExecuted((b) -> {
+                    
                     if (b) {
                         recordButton.setAction(startRecordAction);
                     }
@@ -151,7 +157,8 @@ public class RecModeForm {
         
         zoomInFastButton.setAction(applicationContext.getMainActions().getAction(ActionConstants.ZOOM_IN_FAST_ACTION));
         zoomInButton.setAction(applicationContext.getMainActions().getAction(ActionConstants.ZOOM_IN_ACTION));
-        zoomOutFastButton.setAction(applicationContext.getMainActions().getAction(ActionConstants.ZOOM_OUT_FAST_ACTION));
+        zoomOutFastButton.setAction(applicationContext.getMainActions()
+                .getAction(ActionConstants.ZOOM_OUT_FAST_ACTION));
         zoomOutButton.setAction(applicationContext.getMainActions().getAction(ActionConstants.ZOOM_OUT_ACTION));
         stopZoomButton.setAction(applicationContext.getMainActions().getAction(ActionConstants.STOP_ZOOM_ACTION));
         
@@ -160,8 +167,10 @@ public class RecModeForm {
         RecModeFormZoomAutoStopOffAction recModeFormZoomAutoStopOffAction = new RecModeFormZoomAutoStopOffAction(this);
         formActions.putAction(ActionConstants.RECMODEFORM_ZOOM_AUTO_STOP_OFF, recModeFormZoomAutoStopOffAction);
         zoomAutoStopOnOffBtn.setAction(recModeFormZoomAutoStopOffAction);
-        recModeFormZoomAutoStopOnAction.setOnExcecuted(() -> this.zoomAutoStopOnOffBtn.setAction(recModeFormZoomAutoStopOffAction));
-        recModeFormZoomAutoStopOffAction.setOnExcecuted(() -> this.zoomAutoStopOnOffBtn.setAction(recModeFormZoomAutoStopOnAction));
+        recModeFormZoomAutoStopOnAction.setOnExcecuted(()
+                -> this.zoomAutoStopOnOffBtn.setAction(recModeFormZoomAutoStopOffAction));
+        recModeFormZoomAutoStopOffAction.setOnExcecuted(()
+                -> this.zoomAutoStopOnOffBtn.setAction(recModeFormZoomAutoStopOnAction));
         
         
         viewer = new Viewer(this.applicationContext);
@@ -172,19 +181,23 @@ public class RecModeForm {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         panel.add(new Box.Filler(new Dimension(0,10), new Dimension(0,15), new Dimension(0,20)));
+        
         if (viewer.getSurface() != null) {
             viewer.getSurface().setBackground(Color.blue);
             panel.add(viewer.getSurface());
         }
+        
         try {
             recModeIndicator = new RecModeIndicator();
             panel.add(recModeIndicator);
+            
             if (applicationContext.getStateChecker() != null) {
                 applicationContext.getStateChecker().setTimeInterval(Constants.RECMODEFORM_STATECHECK_INTERVAL);
                 applicationContext.getStateChecker().setOnCheckState(() -> this.updateRecModeIndicator());
                 applicationContext.getStateChecker().checkState();
                 applicationContext.getStateChecker().startCheckingContinously();
             }
+            
         } catch (IOException ex) {
             Logger.getLogger(RecModeForm.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -205,16 +218,17 @@ public class RecModeForm {
         viewerControlPanel.add(new Box.Filler(new Dimension(15,0), new Dimension(20,0), new Dimension(25,0)));
         viewerControlPanel.add(zoomAutoStopOnOffBtn);
         viewerControlPanel.add(Box.createHorizontalGlue());
-        viewerControlPanel.setPreferredSize(new Dimension(490, Constants.RECMODEFORM_VIEWERCONTROLPANEL_BTNIMG_HEIGHT + 12));
-        viewerControlPanel.setMaximumSize(new Dimension(490, Constants.RECMODEFORM_VIEWERCONTROLPANEL_BTNIMG_HEIGHT + 12));
-        viewerControlPanel.setMinimumSize(new Dimension(490, Constants.RECMODEFORM_VIEWERCONTROLPANEL_BTNIMG_HEIGHT + 12));
+        viewerControlPanel.setPreferredSize(
+                new Dimension(490, Constants.RECMODEFORM_VIEWERCONTROLPANEL_BTNIMG_HEIGHT + 12));
+        viewerControlPanel.setMaximumSize(
+                new Dimension(490, Constants.RECMODEFORM_VIEWERCONTROLPANEL_BTNIMG_HEIGHT + 12));
+        viewerControlPanel.setMinimumSize(
+                new Dimension(490, Constants.RECMODEFORM_VIEWERCONTROLPANEL_BTNIMG_HEIGHT + 12));
         panel.add(viewerControlPanel);
         
         panel.add(new Box.Filler(new Dimension(0,10), new Dimension(0,15), new Dimension(0,20)));
         
         container.add(panel, BorderLayout.CENTER);
-        
-        
         
         this.applicationContext.getMainGui().getFrame().pack();
         formActions.getAction(ActionConstants.RECMODEFORM_PLAYSTREAM).actionPerformed(null);
@@ -236,23 +250,31 @@ public class RecModeForm {
         if (applicationContext.getStateChecker() != null && applicationContext.getStateChecker().getState() != null
                 && recModeIndicator != null && applicationContext.getStateChecker().getState() instanceof StateRec) {
             StateRec tmpState = (StateRec)applicationContext.getStateChecker().getState();
-            recModeIndicator.setPreviewIndicator(tmpState.getLivestream() != null ? tmpState.getLivestream().equals(ControlConstants.ON) : false);
+            recModeIndicator.setPreviewIndicator(tmpState.getLivestream() != null
+                    ? tmpState.getLivestream().equals(ControlConstants.ON) : false);
+            
             if (tmpState.getOperation() != null && tmpState.getOperation().equals(ControlConstants.OPERATE_ENABLE)) {
+                
                 if (tmpState.getRec() != null && tmpState.getRec().equals(ControlConstants.ON)) {
                    recModeIndicator.setCamIndicator(RecModeIndicator.CAM_INDICATOR_REC);
+                   
                 } else {
                     recModeIndicator.setCamIndicator(RecModeIndicator.CAM_INDICATOR_ON);
                 }
+                
             } else {
                 recModeIndicator.setCamIndicator(RecModeIndicator.CAM_INDICATOR_OFF);
             }
             int batteryPercentage = Util.getBatteryPercentage(tmpState.getBatt());
+            
             if (batteryPercentage > 20) {
                 recModeIndicator.setBatteryIndicator(RecModeIndicator.BATTERY_INDICATOR_GOOD, tmpState.getBatt());
+                
             } else {
                 recModeIndicator.setBatteryIndicator(RecModeIndicator.BATTERY_INDICATOR_BAD, tmpState.getBatt());
             }
         } else {
+            
             if (recModeIndicator != null) {
                 recModeIndicator.resetIndicators();
             }

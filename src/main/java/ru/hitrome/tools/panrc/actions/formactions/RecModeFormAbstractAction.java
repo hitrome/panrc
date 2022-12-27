@@ -34,14 +34,13 @@ public abstract class RecModeFormAbstractAction extends AbstractAction {
         super(name);
     }
     
-    
-    
     @Override
     public void setEnabled(boolean newValue) {
         super.setEnabled(newValue);
+        
         if (onSetEnabled != null) {
-                onSetEnabled.accept(newValue);
-            }
+            onSetEnabled.accept(newValue);
+        }
     }
 
     public void setOnSetEnabled(Consumer<Boolean> onSetEnabled) {

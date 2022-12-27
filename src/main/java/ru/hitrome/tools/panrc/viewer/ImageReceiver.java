@@ -27,6 +27,8 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -39,16 +41,22 @@ import ru.hitrome.tools.panrc.exceptions.ImageReceiverTimeOutException;
  */
 public class ImageReceiver implements Runnable {
     
+    private static final Logger LOGGER = Logger.getLogger(ImageReceiver.class.getName());
+    
     private final int serverPort;
     private final Runnable streamRestarter;
     private Runnable fireSocketTimeOut;
     private DatagramSocket socket;
     private DatagramPacket udpPacket;
-    private byte[] outBuffer = new byte[35840];
-    private BufferedImage receivedImage;
+    private byte[] outBuffer = new byte[ViewerConstants.RECEIVER_BUFFER];
+    private volatile BufferedImage receivedImage;
     private Thread receiverThread;
     
     private long referenceTime = System.currentTimeMillis();
+    private int frameCounter = 0;
+    private int startFrameCounter = 0;
+    private int filteredFrameCounter = 0;
+    private final AtomicInteger realFrameCounter = new AtomicInteger(0);
     private boolean interrupt = false;
     private int socketTimeOutCount = 0;
     private boolean externalRestarter = false;
@@ -102,9 +110,15 @@ public class ImageReceiver implements Runnable {
         @Override
         @SuppressWarnings("UseSpecificCatch")
         public void run() {
+            Semaphore sm = new Semaphore(1, true);
+            
             try {
                 BufferedImage tempImg = ImageIO.read(new ByteArrayInputStream(buffer));
+                sm.acquire();
                 receivedImage = tempImg;
+                realFrameCounter.incrementAndGet();
+                sm.release();
+                
             } catch (Exception e) {
                 LOGGER.log(Level.INFO, e.getMessage(), e);
             }
@@ -115,30 +129,44 @@ public class ImageReceiver implements Runnable {
     
     private void receiveImage() {
         try {
-            // this is here to anticipate the timeout.
-            // It seems that the stream has to be restarted periodically,
-            // something like every 12 seconds. We take a little margin here.
-            if (System.currentTimeMillis() - referenceTime > 11000) {
+            startFrameCounter++;
+            
+            // This is here to anticipate a timeout.
+            // It seems that the stream should be restarted periodically,
+            // something like every 12 seconds.
+            if (System.currentTimeMillis() - referenceTime > ViewerConstants.STREAM_RESTART_TIME) {
                 throw new ImageReceiverTimeOutException();
             }
             socket.receive(udpPacket);
+            
+            if (udpPacket.getLength() < ViewerConstants.MINIMAL_VALID_FRAME_SIZE) {
+                
+                return;
+            }
+            filteredFrameCounter++;
             outBuffer = udpPacket.getData();
             socketTimeOutCount = 0;
             int offset = -1;
-            // find beginning of the image
+            
+            // Seeking to the beginning of the image
             for (int i = 0; i < 500; i++) {
                 if (outBuffer[i] == -1 && outBuffer[i + 1] == -40) {
                     offset = i;
                     break;
                 }
             }
+            
             if (offset != -1) {
-                Thread thread = new ProcessImageData(Arrays.copyOfRange(outBuffer, offset, outBuffer.length - offset));
+                Thread thread = new ProcessImageData(Arrays.copyOfRange(outBuffer, offset,
+                        udpPacket.getLength() < outBuffer.length ?
+                                outBuffer.length - offset : outBuffer.length - offset));
                 thread.start();
+                frameCounter++;
             }
             
             
         } catch (ImageReceiverTimeOutException e) {
+            
             if (!externalRestarter) {
                 Thread thread = new Thread(() -> {
                     streamRestarter.run();
@@ -146,16 +174,26 @@ public class ImageReceiver implements Runnable {
                 thread.start();
             }
             referenceTime = System.currentTimeMillis();
-            System.out.println(referenceTime);
-        }  catch (IOException ioe) {
-            if (ioe.getClass().getName().equals(SocketTimeoutException.class.getName())) {
-                socketTimeOutCount++;
-                if (fireSocketTimeOut != null && socketTimeOutCount > Constants.VIEWER_MAX_UDP_SOCKET_TIMEOUTS) {
-                    fireSocketTimeOut.run();
-                }
-            } 
+            LOGGER.log(Level.INFO, "{0}\t{1}\t{2}\t{3}\t{4}", new Object[]{String.valueOf(referenceTime),
+                startFrameCounter, filteredFrameCounter, frameCounter, realFrameCounter.get()});
+            startFrameCounter = 0;
+            filteredFrameCounter = 0;
+            frameCounter = 0;
+            realFrameCounter.set(0);
+            System.gc();
+            
+        } catch (SocketTimeoutException ste) {
+            socketTimeOutCount++;
+
+            if (fireSocketTimeOut != null && socketTimeOutCount > Constants.VIEWER_MAX_UDP_SOCKET_TIMEOUTS) {
+                fireSocketTimeOut.run();
+            }
+            LOGGER.info(ste.getMessage());
+            
+        } catch (IOException ioe) { 
             LOGGER.log(Level.INFO, ioe.getMessage(), ioe);
         }
+        
     }
 
     @Override
@@ -163,23 +201,26 @@ public class ImageReceiver implements Runnable {
         try {
             socket = new DatagramSocket(serverPort);
             socket.setSoTimeout(Constants.VIEWER_UDP_SOCKET_TIMEOUT);
+            
         } catch (SocketException ex) {
-            Logger.getLogger(ImageReceiver.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
             return;
         }
+        
         try {
             udpPacket = new DatagramPacket(outBuffer, outBuffer.length, InetAddress.getByName("127.0.1.1"), serverPort);
+            
         } catch (UnknownHostException ex) {
-            Logger.getLogger(ImageReceiver.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
             socket.close();
             return;
         }
+        
         while (!interrupt) {
             receiveImage(); 
         }
+        
         socket.close();
     }
-    
-    private static final Logger LOGGER = Logger.getLogger(ImageReceiver.class.getName());
     
 }

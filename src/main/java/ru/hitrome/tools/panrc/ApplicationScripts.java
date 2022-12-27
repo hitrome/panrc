@@ -17,6 +17,8 @@
  */
 package ru.hitrome.tools.panrc;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import ru.hitrome.tools.panrc.modes.ChangingCamIpManuallyMode;
 import ru.hitrome.tools.panrc.modes.InitCameraMode;
 import ru.hitrome.tools.panrc.modes.RecMode;
@@ -27,17 +29,20 @@ import ru.hitrome.tools.panrc.modes.RecMode;
  */
 public class ApplicationScripts {
     
+    private static final Logger LOGGER = Logger.getLogger(ApplicationScripts.class.getName());
+    
     public static void startScript(ApplicationContext applicationContext) {
         applicationContext.setApplicationMode(new ChangingCamIpManuallyMode());
         
     }
     
     public static void firstInitScript(ApplicationContext applicationContext) {
+        LOGGER.info("FirstInit script started...");
         applicationContext.setApplicationMode(new InitCameraMode());
+        LOGGER.log(Level.INFO, "Mode {0} has been set.", applicationContext.getApplicationMode().getClass().getSimpleName());
         
         Thread thread = new Thread(() -> {
             Util.checkWithTimeout(() -> { return false; }, applicationContext::isFinishedTaskFlag, 4000);
-            
             
             try {
                 Thread.sleep(3000);
@@ -45,10 +50,14 @@ public class ApplicationScripts {
                 //
             }
             
-            
             if (applicationContext.getApplicationMode().getResult()) {
+                LOGGER.info("Switching to RecMode...");
                 applicationContext.setApplicationMode(new RecMode());
+                
             } else {
+                LOGGER.log(Level.INFO,
+                        "Mode {0} has returned with false result. So, transferring to ChangingCamIpManually mode.",
+                        applicationContext.getApplicationMode().getClass().getSimpleName());
                 applicationContext.setApplicationMode(new ChangingCamIpManuallyMode());
             }
         });
@@ -56,6 +65,7 @@ public class ApplicationScripts {
     }
     
     public static void recModeFailedScript(ApplicationContext applicationContext) {
+        LOGGER.info("RecModeFailed script started - redirecting to ChangingCamIpManually mode...");
         applicationContext.setApplicationMode(new ChangingCamIpManuallyMode());
     }
     

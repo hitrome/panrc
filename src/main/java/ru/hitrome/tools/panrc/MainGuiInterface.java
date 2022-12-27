@@ -53,12 +53,16 @@ public class MainGuiInterface {
     
     private void initGui() {
         frame = new JFrame(LanguageUtil.get("application.title"));
+        
         try {
-            frame.setIconImage(ImageIO.read(getClass().getResourceAsStream(ru.hitrome.tools.panrc.Constants.IMG_APPLICATION_ICON)));
+            frame.setIconImage(ImageIO.read(getClass().getResourceAsStream(Constants.IMG_APPLICATION_ICON)));
+            
         } catch (IOException ex) {
             Logger.getLogger(MainGuiInterface.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
         WindowListener wndCloser = new WindowAdapter() {
+            
             @Override
             public void windowClosing(WindowEvent e) {
                 applicationContext.getMainActions().getAction(ActionConstants.EXIT_ACTION).actionPerformed(null);

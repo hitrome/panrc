@@ -44,6 +44,7 @@ public abstract class AbstractActionWithCallback extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         action(e);
+        
         if (onExecuted != null && !delayedResult) {
             onExecuted.accept(actionResult);
         }

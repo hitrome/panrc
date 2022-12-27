@@ -28,6 +28,8 @@ import java.util.logging.Logger;
  */
 public class StateRec extends State {
     
+    private static final Logger LOGGER = Logger.getLogger(StateRec.class.getName());
+    
     private String rec;
     private String recremaincapacityHours;
     private String recremaincapacityMin;
@@ -45,7 +47,7 @@ public class StateRec extends State {
                 field.setAccessible(true);
                 field.set(this, data.get(field.getName())) ;
             } catch (IllegalArgumentException | IllegalAccessException ex) {
-                Logger.getLogger(State.class.getName()).log(Level.SEVERE, null, ex);
+                LOGGER.log(Level.SEVERE, null, ex);
             }
         }
     }

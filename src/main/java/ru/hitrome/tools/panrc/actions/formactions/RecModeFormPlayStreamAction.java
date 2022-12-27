@@ -36,6 +36,8 @@ import ru.hitrome.tools.panrc.forms.RecModeForm;
  */
 public class RecModeFormPlayStreamAction extends RecModeFormAbstractAction {
     
+    private static final Logger LOGGER = Logger.getLogger(RecModeFormPlayStreamAction.class.getName());
+    
     private final RecModeForm form;
     private boolean result;
     
@@ -46,10 +48,13 @@ public class RecModeFormPlayStreamAction extends RecModeFormAbstractAction {
         
         try {
             actionImage = new ImageIcon(ImageIO.read(getClass()
-                    .getResourceAsStream(ru.hitrome.tools.panrc.Constants.IMG_PREVIEW_ON)).getScaledInstance(-1, Constants.RECMODEFORM_VIEWERCONTROLPANEL_BTNIMG_HEIGHT, Image.SCALE_SMOOTH));
+                    .getResourceAsStream(ru.hitrome.tools.panrc.Constants.IMG_PREVIEW_ON))
+                    .getScaledInstance(-1, Constants.RECMODEFORM_VIEWERCONTROLPANEL_BTNIMG_HEIGHT, Image.SCALE_SMOOTH));
+            
         } catch (IOException ex) {
-            Logger.getLogger(RecModeFormPlayStreamAction.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
         }
+        
         if (actionImage != null) {
             this.putValue(Action.SMALL_ICON, actionImage);
         }
@@ -60,6 +65,7 @@ public class RecModeFormPlayStreamAction extends RecModeFormAbstractAction {
     public void actionPerformed(ActionEvent e) {
         if (this.enabled) {
             result = form.getViewer().startViewer();
+            
             if (onExecuted != null) {
                 onExecuted.accept(result);
             }
@@ -69,9 +75,10 @@ public class RecModeFormPlayStreamAction extends RecModeFormAbstractAction {
     @Override
     public void setEnabled(boolean newValue) {
         super.setEnabled(newValue);
+        
         if (onSetEnabled != null) {
-                onSetEnabled.accept(newValue);
-            }
+            onSetEnabled.accept(newValue);
+        }
     }
 
     

@@ -15,21 +15,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package ru.hitrome.tools.panrc;
 
-import java.util.Locale;
-import java.util.ResourceBundle;
+package ru.hitrome.tools.panrc.viewer;
 
 /**
  *
  * @author Roman Novikov <rrl-software@mail.ru>
  */
-public class LanguageUtil {
+public class ViewerConstants {
     
-    public static String get(String key) {
-        ResourceBundle rb = ResourceBundle.getBundle("language", Locale.getDefault());
-        
-        return rb.getString(key);
-    }
-    
+    public static final int RECEIVER_BUFFER = 35840;
+    public static final int MINIMAL_VALID_FRAME_SIZE = 1024;
+    public static final int STREAM_RESTART_TIME = 11000;
+
 }

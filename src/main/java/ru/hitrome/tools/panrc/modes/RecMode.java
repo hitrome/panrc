@@ -49,33 +49,40 @@ public class RecMode implements AbstractApplicationMode, Runnable {
             applicationContext.getStateChecker().stopCheckingContinously();
             applicationContext.getStateChecker().setOnCheckState(null);
         }
+        
         if (form != null) {
             form.getViewer().stopViewer();
         }
+        
         if (applicationContext.getCamQueue() != null) {
                 applicationContext.getCamQueue().stop();
         }
         RemoteControlCommands rcc = new RemoteControlCommands(applicationContext.getCameraIpAddress());
         rcc.switchToPlayMode();
+        
         if (form != null) {
             applicationContext.getMainGui().getFrame().getContentPane().remove(form.getPanel());
             applicationContext.getMainGui().getFrame().pack();
             applicationContext.setStateChecker(null);
         }
-        ((AbstractActionWithCallback)applicationContext.getMainActions().getAction(ActionConstants.START_RECORD_ACTION)).setOnExecuted(null);
-        ((AbstractActionWithCallback)applicationContext.getMainActions().getAction(ActionConstants.STOP_RECORD_ACTION)).setOnExecuted(null);
+        ((AbstractActionWithCallback)applicationContext.getMainActions()
+                .getAction(ActionConstants.START_RECORD_ACTION)).setOnExecuted(null);
+        ((AbstractActionWithCallback)applicationContext.getMainActions()
+                .getAction(ActionConstants.STOP_RECORD_ACTION)).setOnExecuted(null);
     }
 
     @Override
     public void run() {
         RemoteControlCommands rcc = new RemoteControlCommands(applicationContext.getCameraIpAddress());
         if (rcc.switchToRecMode()) {
+            
             if (applicationContext.getCamQueue() != null) {
                 applicationContext.getCamQueue().start();
             }
             applicationContext.setStateChecker(new StateChecker(applicationContext));
             form = new RecModeForm(applicationContext);
             result = true;
+            
         } else {
             ApplicationScripts.recModeFailedScript(applicationContext);
         }
@@ -84,6 +91,7 @@ public class RecMode implements AbstractApplicationMode, Runnable {
 
     @Override
     public boolean getResult() {
+        
         return result;
     }
     

@@ -28,6 +28,8 @@ import java.util.logging.Logger;
  */
 public class State {
     
+    private static final Logger LOGGER = Logger.getLogger(State.class.getName());
+    
     private String batt;
     private String batttype;
     private String livestream;
@@ -42,12 +44,15 @@ public class State {
     @SuppressWarnings("LeakingThisInConstructor")
     public State(Map data) {
         Field[] fields = this.getClass().getDeclaredFields();
+        
         for (Field field:fields) {
+            
             try {
                 field.setAccessible(true);
                 field.set(this, data.get(field.getName())) ;
+                
             } catch (IllegalArgumentException | IllegalAccessException ex) {
-                Logger.getLogger(State.class.getName()).log(Level.SEVERE, null, ex);
+                LOGGER.log(Level.SEVERE, null, ex);
             }
         }
     }
