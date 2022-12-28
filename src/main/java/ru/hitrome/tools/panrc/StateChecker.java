@@ -17,6 +17,7 @@
  */
 package ru.hitrome.tools.panrc;
 
+import java.util.logging.Logger;
 import ru.hitrome.tools.panrc.model.State;
 
 /**
@@ -24,6 +25,8 @@ import ru.hitrome.tools.panrc.model.State;
  * @author Roman Novikov <rrl-software@mail.ru>
  */
 public class StateChecker implements Runnable {
+    
+    private static final Logger LOGGER = Logger.getLogger(StateChecker.class.getName());
     
     private final ApplicationContext applicationContext;
     private State state;
@@ -65,6 +68,8 @@ public class StateChecker implements Runnable {
     public void checkStateEx(String camAddr) {
         RemoteControlCommands rcc = new RemoteControlCommands(camAddr);
         state = rcc.getStateEx();
+        
+        LOGGER.info("State checked.");
         
         if (onCheckState != null) {
             onCheckState.run();

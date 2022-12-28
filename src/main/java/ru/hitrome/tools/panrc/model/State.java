@@ -28,8 +28,6 @@ import java.util.logging.Logger;
  */
 public class State {
     
-    private static final Logger LOGGER = Logger.getLogger(State.class.getName());
-    
     private String batt;
     private String batttype;
     private String livestream;
@@ -52,7 +50,7 @@ public class State {
                 field.set(this, data.get(field.getName())) ;
                 
             } catch (IllegalArgumentException | IllegalAccessException ex) {
-                LOGGER.log(Level.SEVERE, null, ex);
+                Logger.getLogger(State.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
