@@ -24,8 +24,9 @@ package ru.hitrome.tools.panrc.viewer;
  */
 public class ViewerConstants {
     
-    public static final int RECEIVER_BUFFER = 35840;
+    public static final int RECEIVER_BUFFER = 65536;
     public static final int MINIMAL_VALID_FRAME_SIZE = 1024;
     public static final int STREAM_RESTART_TIME = 11000;
+    public static final int MARKER_SEARCH_RANGE = 500;
 
 }

@@ -27,8 +27,8 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -49,7 +49,7 @@ public class ImageReceiver implements Runnable {
     private DatagramSocket socket;
     private DatagramPacket udpPacket;
     private byte[] outBuffer = new byte[ViewerConstants.RECEIVER_BUFFER];
-    private volatile BufferedImage receivedImage;
+    private final AtomicReference<BufferedImage> receivedImage;
     private Thread receiverThread;
     
     private long referenceTime = System.currentTimeMillis();
@@ -64,12 +64,13 @@ public class ImageReceiver implements Runnable {
 
     
     public ImageReceiver(int port, Runnable streamRestarter) {
-        serverPort = port;
+        this.serverPort = port;
         this.streamRestarter = streamRestarter;
+        this.receivedImage = new AtomicReference<>();
     }
 
     public BufferedImage getReceivedImage() {
-        return receivedImage;
+        return receivedImage.get();
     }
     
     public void startReceiver() {
@@ -110,14 +111,11 @@ public class ImageReceiver implements Runnable {
         @Override
         @SuppressWarnings("UseSpecificCatch")
         public void run() {
-            Semaphore sm = new Semaphore(1, true);
             
             try {
                 BufferedImage tempImg = ImageIO.read(new ByteArrayInputStream(buffer));
-                sm.acquire();
-                receivedImage = tempImg;
+                receivedImage.set(tempImg);
                 realFrameCounter.incrementAndGet();
-                sm.release();
                 
             } catch (Exception e) {
                 LOGGER.log(Level.INFO, e.getMessage(), e);
@@ -144,13 +142,18 @@ public class ImageReceiver implements Runnable {
                 return;
             }
             filteredFrameCounter++;
+            
             outBuffer = udpPacket.getData();
             socketTimeOutCount = 0;
             int offset = -1;
             
             // Seeking to the beginning of the image
-            for (int i = 0; i < 500; i++) {
-                if (outBuffer[i] == -1 && outBuffer[i + 1] == -40) {
+            for (
+                    int i = udpPacket.getOffset(); 
+                    i < (udpPacket.getLength() < udpPacket.getOffset() + ViewerConstants.MARKER_SEARCH_RANGE 
+                    ? udpPacket.getLength() : udpPacket.getOffset() + ViewerConstants.MARKER_SEARCH_RANGE);
+                    i++) {
+                if (i + 1 < udpPacket.getLength() && outBuffer[i] == -1 && outBuffer[i + 1] == -40) {
                     offset = i;
                     break;
                 }
@@ -159,7 +162,7 @@ public class ImageReceiver implements Runnable {
             if (offset != -1) {
                 Thread thread = new ProcessImageData(Arrays.copyOfRange(outBuffer, offset,
                         udpPacket.getLength() < outBuffer.length ?
-                                outBuffer.length - offset : outBuffer.length - offset));
+                                udpPacket.getLength() - offset : outBuffer.length - offset));
                 thread.start();
                 frameCounter++;
             }
